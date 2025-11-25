@@ -1,8 +1,6 @@
 module github.com/pojntfx/htorrent
 
-go 1.22
-
-toolchain go1.22.5
+go 1.25.4
 
 require (
 	github.com/anacrolix/torrent v1.56.1
