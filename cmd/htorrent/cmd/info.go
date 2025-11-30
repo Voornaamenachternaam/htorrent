@@ -29,7 +29,7 @@ var (
 
 type infoWithStreamURL struct {
 	Name         string              `yaml:"name"`
-	InfoHash     string              `json:"infohash"`
+	InfoHash     string              `                    json:"infohash"`
 	Description  string              `yaml:"description"`
 	CreationDate int64               `yaml:"creationDate"`
 	Files        []fileWithStreamURL `yaml:"files"`
@@ -109,7 +109,7 @@ var infoCmd = &cobra.Command{
 			exp := regexp.MustCompile(viper.GetString(expressionFlag))
 
 			for _, f := range info.Files {
-				if exp.Match([]byte(f.Path)) {
+				if exp.MatchString(f.Path) {
 					streamURL, err := getStreamURL(viper.GetString(raddrFlag), viper.GetString(magnetFlag), f.Path)
 					if err != nil {
 						return err
@@ -154,7 +154,8 @@ func init() {
 	infoCmd.PersistentFlags().StringP(apiPasswordFlag, "p", "", "Username or OIDC access token for the gateway")
 	infoCmd.PersistentFlags().StringP(raddrFlag, "r", "http://localhost:1337/", "Remote address")
 	infoCmd.PersistentFlags().StringP(magnetFlag, "m", "", "Magnet link to get info for")
-	infoCmd.PersistentFlags().StringP(expressionFlag, "x", "", "Regex to select the link to output by, i.e. (.*).mkv$ to only return the first .mkv file; disables all other info")
+	infoCmd.PersistentFlags().
+		StringP(expressionFlag, "x", "", "Regex to select the link to output by, i.e. (.*).mkv$ to only return the first .mkv file; disables all other info")
 
 	viper.AutomaticEnv()
 
