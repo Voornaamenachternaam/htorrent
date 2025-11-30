@@ -363,7 +363,7 @@ func (g *Gateway) Close() error {
 	log.Trace().Msg("Closing gateway")
 
 	if err := g.srv.Shutdown(g.ctx); err != nil {
-		if err != context.Canceled {
+		if !errors.Is(err, context.Canceled) {
 			return err
 		}
 	}
@@ -371,7 +371,7 @@ func (g *Gateway) Close() error {
 	errs := g.torrentClient.Close()
 	for _, err := range errs {
 		if err != nil {
-			if err != context.Canceled {
+			if !errors.Is(err, context.Canceled) {
 				return err
 			}
 		}

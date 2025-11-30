@@ -77,7 +77,7 @@ var gatewayCmd = &cobra.Command{
 			return err
 		}
 
-		s := make(chan os.Signal)
+		s := make(chan os.Signal, 1)
 		signal.Notify(s, os.Interrupt, syscall.SIGTERM)
 		go func() {
 			<-s
@@ -115,12 +115,17 @@ func init() {
 		panic(err)
 	}
 
-	gatewayCmd.PersistentFlags().StringP(storageFlag, "s", filepath.Join(home, ".local", "share", "htorrent", "var", "lib", "htorrent", "data"), "Path to store downloaded torrents in")
+	gatewayCmd.PersistentFlags().
+		StringP(storageFlag, "s", filepath.Join(home, ".local", "share", "htorrent", "var", "lib", "htorrent", "data"), "Path to store downloaded torrents in")
 	gatewayCmd.PersistentFlags().StringP(laddrFlag, "l", ":1337", "Listening address")
-	gatewayCmd.PersistentFlags().String(apiUsernameFlag, "admin", "Username for the management API (can also be set using the API_USERNAME env variable). Ignored if any of the OIDC parameters are set.")
-	gatewayCmd.PersistentFlags().String(apiPasswordFlag, "", "Password for the management API (can also be set using the API_PASSWORD env variable). Ignored if any of the OIDC parameters are set.")
-	gatewayCmd.PersistentFlags().String(oidcIssuerFlag, "", "OIDC Issuer (i.e. https://pojntfx.eu.auth0.com/) (can also be set using the OIDC_ISSUER env variable)")
-	gatewayCmd.PersistentFlags().String(oidcClientIDFlag, "", "OIDC Client ID (i.e. myoidcclientid) (can also be set using the OIDC_CLIENT_ID env variable)")
+	gatewayCmd.PersistentFlags().
+		String(apiUsernameFlag, "admin", "Username for the management API (can also be set using the API_USERNAME env variable). Ignored if any of the OIDC parameters are set.")
+	gatewayCmd.PersistentFlags().
+		String(apiPasswordFlag, "", "Password for the management API (can also be set using the API_PASSWORD env variable). Ignored if any of the OIDC parameters are set.")
+	gatewayCmd.PersistentFlags().
+		String(oidcIssuerFlag, "", "OIDC Issuer (i.e. https://pojntfx.eu.auth0.com/) (can also be set using the OIDC_ISSUER env variable)")
+	gatewayCmd.PersistentFlags().
+		String(oidcClientIDFlag, "", "OIDC Client ID (i.e. myoidcclientid) (can also be set using the OIDC_CLIENT_ID env variable)")
 
 	viper.AutomaticEnv()
 
