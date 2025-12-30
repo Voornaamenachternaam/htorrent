@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
+	v1 "github.com/Voornaamenachternaam/htorrent/pkg/api/http/v1"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/phayes/freeport"
 	"github.com/pojntfx/go-auth-utils/pkg/authn"
 	"github.com/pojntfx/go-auth-utils/pkg/authn/basic"
 	"github.com/pojntfx/go-auth-utils/pkg/authn/oidc"
-	v1 "github.com/Voornaamenachternaam/htorrent/pkg/api/http/v1"
 	"github.com/rs/zerolog/log"
 )
 
