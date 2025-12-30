@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	jsoniter "github.com/json-iterator/go"
-	v1 "github.com/pojntfx/htorrent/pkg/api/http/v1"
+	"github.com/Voornaamenachternaam/htorrent/pkg/api/http/v1"
 )
 
 var (
