@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 
 
 Find more information at:
-https://github.com/pojntfx/htorrent`,
+https://github.com/Voornaamenachternaam/htorrent`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		viper.SetEnvPrefix("")
 		viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
