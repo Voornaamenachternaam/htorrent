@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pojntfx/htorrent/pkg/client"
+	"github.com/Voornaamenachternaam/htorrent/pkg/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
