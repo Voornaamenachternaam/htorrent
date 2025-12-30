@@ -18,7 +18,7 @@ import (
 	"github.com/pojntfx/go-auth-utils/pkg/authn"
 	"github.com/pojntfx/go-auth-utils/pkg/authn/basic"
 	"github.com/pojntfx/go-auth-utils/pkg/authn/oidc"
-	v1 "github.com/pojntfx/htorrent/pkg/api/http/v1"
+	v1 "github.com/Voornaamenachternaam/htorrent/pkg/api/http/v1"
 	"github.com/rs/zerolog/log"
 )
 
