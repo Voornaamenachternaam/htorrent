@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"syscall"
 
-	v1 "github.com/pojntfx/htorrent/pkg/api/http/v1"
-	"github.com/pojntfx/htorrent/pkg/server"
+	v1 "github.com/Voornaamenachternaam/htorrent/pkg/api/http/v1"
+	"github.com/Voornaamenachternaam/htorrent/pkg/server"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
