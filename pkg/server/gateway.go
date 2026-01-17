@@ -29,22 +29,18 @@ var (
 )
 
 type Gateway struct {
-	laddr        string
-	storage      string
-	apiUsername  string
-	apiPassword  string
-	oidcIssuer   string
-	oidcClientID string
-	debug        bool
-
+	ctx                context.Context
 	onDownloadProgress func(torrentMetrics v1.TorrentMetrics, fileMetrics v1.FileMetrics)
-
-	torrentClient *torrent.Client
-	srv           *http.Server
-
-	errs chan error
-
-	ctx context.Context
+	torrentClient      *torrent.Client
+	srv                *http.Server
+	errs               chan error
+	laddr              string
+	storage            string
+	apiUsername        string
+	apiPassword        string
+	oidcIssuer         string
+	oidcClientID       string
+	debug              bool
 }
 
 func NewGateway(
