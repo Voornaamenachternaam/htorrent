@@ -31,14 +31,14 @@ type infoWithStreamURL struct {
 	Name         string              `yaml:"name"`
 	InfoHash     string              `                    json:"infohash"`
 	Description  string              `yaml:"description"`
-	CreationDate int64               `yaml:"creationDate"`
 	Files        []fileWithStreamURL `yaml:"files"`
+	CreationDate int64               `yaml:"creationDate"`
 }
 
 type fileWithStreamURL struct {
 	Path      string `yaml:"path"`
-	Length    int64  `yaml:"length"`
 	StreamURL string `yaml:"streamURL"`
+	Length    int64  `yaml:"length"`
 }
 
 var infoCmd = &cobra.Command{

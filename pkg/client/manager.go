@@ -15,10 +15,10 @@ var (
 )
 
 type Manager struct {
+	ctx      context.Context
 	url      string
 	username string
 	password string
-	ctx      context.Context
 }
 
 func NewManager(
