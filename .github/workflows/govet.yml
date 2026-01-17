@@ -45,7 +45,7 @@ jobs:
         continue-on-error: true
         run: |
           set -euo pipefail
-          gofmt -s -w ./...
+          gofmt -s -w $(find . -name '*.go')
 
       - name: Run fieldalignment (fix)
         continue-on-error: true
