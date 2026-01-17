@@ -4,8 +4,8 @@ type Info struct {
 	Name         string `json:"name"`
 	InfoHash     string `json:"infohash"`
 	Description  string `json:"description"`
-	CreationDate int64  `json:"creationDate"`
 	Files        []File `json:"files"`
+	CreationDate int64  `json:"creationDate"`
 }
 
 type File struct {
@@ -16,8 +16,8 @@ type File struct {
 type TorrentMetrics struct {
 	Magnet   string        `json:"magnet"`
 	InfoHash string        `json:"infohash"`
-	Peers    int           `json:"peers"`
 	Files    []FileMetrics `json:"files"`
+	Peers    int           `json:"peers"`
 }
 
 type FileMetrics struct {
