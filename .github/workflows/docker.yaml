@@ -49,7 +49,7 @@ jobs:
           images: ${{ matrix.target.image }}
       - name: Build and push image by digest to registry
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.target.src }}
           file: ${{ matrix.target.src }}/${{ matrix.target.file }}
@@ -64,7 +64,7 @@ jobs:
           export DIGEST="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${DIGEST#sha256:}"
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: digests-${{ matrix.target.id }}
           path: /tmp/digests/*
