@@ -1,0 +1,140 @@
+name: Superlint
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+
+concurrency:
+  group: superlinter-fix-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  checks: write
+  statuses: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  lint-and-fix:
+    name: Lint and Auto-fix (create PR if fixes)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history, allow pushes)
+        uses: actions/checkout@v6.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Go (for go mod tidy + golangci-lint)
+        uses: actions/setup-go@v6.2.0
+        with:
+          go-version-file: 'go.mod'
+          cache: false
+
+      # Ensure modules are downloaded so the analyzer can load packages.
+      - name: Prepare Go modules (download)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t mods < <(git ls-files -- '*/go.mod' 'go.mod' || true)
+          if [ ${#mods[@]} -gt 0 ]; then
+            for gm in "${mods[@]}"; do
+              (cd "$(dirname "$gm")" && go mod download)
+            done
+          fi
+
+      - name: Install / Run golangci-lint (official action) -- fix mode
+        uses: golangci/golangci-lint-action@v9.2.0
+        continue-on-error: true            # preserve previous behaviour (don't abort subsequent steps)
+        with:
+          # install golangci-lint binary (default install-mode=binary)
+          version: v2.8.0
+          # We deliberately set JSON output to avoid GitHub annotations.
+          # We still run --fix so supported auto-fixes are applied.
+          args: --output.json.path=stdout --fix ./...
+          # keep problem-matchers disabled (default = false) to avoid introducing embedded matchers
+          problem-matchers: "false"
+          only-new-issues: "false"
+          # the action will use the go version already set by actions/setup-go above
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix ownership of any files created by action (defensive)
+        run: sudo chown -R "$(id -u):$(id -g)" .
+        shell: bash
+
+      - name: Run go mod tidy (modules) and stage
+        run: |
+          set -euo pipefail
+          mapfile -t mods < <(git ls-files -- '*/go.mod' 'go.mod' || true)
+          if [ ${#mods[@]} -gt 0 ]; then
+            for gm in "${mods[@]}"; do
+              (cd "$(dirname "$gm")" && go mod tidy)
+            done
+            git add -A || true
+          fi
+        shell: bash
+
+      - name: Ensure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        shell: bash
+
+      - name: Detect repository changes
+        id: changes
+        run: |
+          set -euo pipefail
+          # include untracked files as well
+          git add -A || true
+          # check for any staged or unstaged changes
+          if git diff --cached --quiet && git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "files=" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            files=$(git status --porcelain | awk '{print $2}' | tr '\n' ' ' || true)
+            echo "files=${files}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Commit autofixes (if any)
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No staged changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(lint): apply golangci-lint auto-fixes and go mod tidy [skip ci]" || true
+        shell: bash
+
+      - name: Create or update Pull Request with fixes
+        if: steps.changes.outputs.changed == 'true' && (github.actor != 'github-actions[bot]' && github.actor != 'dependabot[bot]')
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: super-linter/fixes-${{ github.run_id }}
+          title: "[golangci-lint] apply auto-fixes"
+          body: |
+            Automated fixes from golangci-lint (auto-fix enabled) and `go mod tidy`.
+            If there are no changes, no PR will be created.
+          commit-message: "chore(lint): apply golangci-lint fixes [skip ci]"
+          author: "golangci-lint[bot] <golangci-lint@users.noreply.github.com>"
+          update-existing: true
+
+      - name: Print created/updated PR url
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          if [ -n "${{ steps.changes.outputs.files }}" ]; then
+            echo "Files changed: ${{ steps.changes.outputs.files }}"
+          fi
+          if [ -n "${{ steps.create_pr.outputs.pull-request-number || '' }}" ]; then
+            echo "Fixes PR created/updated: https://github.com/${{ github.repository }}/pull/${{ steps.create_pr.outputs.pull-request-number }}"
+          else
+            echo "A PR was created/updated (check repository Pull Requests)."
+          fi
+        shell: bash
