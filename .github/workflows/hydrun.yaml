@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Restore ccache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: |
             /tmp/ccache
@@ -55,7 +55,7 @@ jobs:
       - name: Fix permissions for output
         run: sudo chown -R $USER .
       - name: Save ccache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: |
             /tmp/ccache
