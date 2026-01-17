@@ -57,7 +57,7 @@ jobs:
         continue-on-error: true
         run: |
           set -euo pipefail
-          go vet $(find . -name '*.go') > "${RUNNER_TEMP}/govet.log" 2>&1
+          go vet ./... > "${RUNNER_TEMP}/govet.log" 2>&1
 
       - name: Run go mod tidy
         continue-on-error: true
