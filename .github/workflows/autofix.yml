@@ -1,0 +1,83 @@
+name: autofix.ci
+
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  id-token: write
+  issues: write
+  discussions: write
+  packages: write
+  pages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
+  pull_request:
+    branches: [ main ]
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  lint-and-upload:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Ensure reports dir exists
+        run: mkdir -p reports
+
+      - name: Run golangci-lint (via reviewdog action)
+        uses: reviewdog/action-golangci-lint@v2.8.0
+        with:
+          golangci_lint_flags: '--fix --output.sarif.path=reports/golangci.sarif --output.text.path=stdout'
+          reporter: github-pr-check
+          cache: false
+          level: error
+
+      - name: Upload SARIF as GitHub Actions artifact
+        if: always()
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: golangci-sarif
+          path: reports/golangci.sarif
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: reports/golangci.sarif
+          wait-for-processing: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove SARIF report before PR creation
+        if: always()
+        run: rm -rf reports
+
+      - name: Create Pull Request with Fixes
+        uses: peter-evans/create-pull-request@v8.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: auto-fix golangci-lint issues"
+          title: "chore: auto-fix golangci-lint issues"
+          body: "Automated fixes applied by golangci-lint."
+          branch: "fix/golangci-lint-auto-fixes"
+          base: "main"
+
+      - name: Run autofix.ci
+        uses: autofix-ci/action@v1.3.2
+        with:
+          fail-fast: true
+        env:
+          GOTOOLCHAIN: local
