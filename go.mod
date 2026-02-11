@@ -1,6 +1,6 @@
 module github.com/Voornaamenachternaam/htorrent
 
-go 1.25.6
+go 1.26.0
 
 require (
 	github.com/anacrolix/torrent v1.61.0
